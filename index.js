@@ -4,7 +4,7 @@ const port = process.env.PORT || 3000;
 const dotenv = require("dotenv").config();
 // const username=encodeURIComponent(process.env.DB_USER)
 // const password=encodeURIComponent(process.env.DB_PASS)
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 console.log(process.env.DB_USER);
 const app = express();
 const uri =
@@ -68,12 +68,21 @@ app.post('/CreateCrops',async(req,res)=>{
 app.post('/CreateCrops/:cropID',async(req,res)=>{
   const cropId=req.params.cropID
   const userEmail=req.body.userEmail
-  const Crop=CropsCollections.findOne({_id:cropId})
-  if(crop.owner.ownerEmail==userEmail){
+  console.log(userEmail)
+  const Crop=await CropsCollections.findOne({_id:new ObjectId(cropId)})
+  if(Crop?.owner?.ownerEmail==userEmail){
     return res.status(403).send({message:"You can't show interest for it"})
   }
-  const alreadyinterested=Crop.in
-  
+  const alreadyinterested=Crop?.interests?.find(singleInterest=>singleInterest.userEmail===userEmail)
+  if(alreadyinterested){
+  return  res.status(400).send({messgae:"You have already showed your opinion"})
+  }
+  const interestId=new ObjectId()
+const newInterest=req.body
+  newInterest._id=interestId
+  newInterest.CropId=cropId
+  const result= await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$push:{interests:newInterest}})
+  res.send(result)
 })
     await client.db("admin").command({ ping: 1 });
     console.log(
