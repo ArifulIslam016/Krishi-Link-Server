@@ -1,0 +1,88 @@
+const express = require("express");
+const cors = require("cors");
+const port = process.env.PORT || 3000;
+const dotenv = require("dotenv").config();
+// const username=encodeURIComponent(process.env.DB_USER)
+// const password=encodeURIComponent(process.env.DB_PASS)
+const { MongoClient, ServerApiVersion } = require("mongodb");
+console.log(process.env.DB_USER);
+const app = express();
+const uri =
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@aiclusters1.5l6vxb7.mongodb.net/?appName=AIClusters1`;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Server initialized");
+});
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    const KrishiDB = client.db("KrishiDB");
+    const CropsCollections=KrishiDB.collection("CropsCollections")
+    const KrishiBDtestcoll = KrishiDB.collection("test");
+    const newsCollections=KrishiDB.collection("news")   
+    app.post("/test", async (req, res) => {
+      const newcoll = req.body;
+      const result = await KrishiBDtestcoll.insertOne(newcoll);
+      res.send(result);
+    });
+
+
+// Get Section
+
+app.get('/news',async(req,res)=>{
+    const cursor=newsCollections.find()
+    const result=await cursor.toArray()
+    res.send(result)
+})
+app.get('/allcrops',async(req,res)=>{
+  const ownerEmail=req.query.email
+ const  quary={}
+ if(ownerEmail){
+  quary['owner.ownerEmail']=ownerEmail
+ }
+
+  const cursor=CropsCollections.find(quary)
+  const result=await cursor.toArray()
+  res.send(result)
+})
+// Post sections
+app.post('/CreateCrops',async(req,res)=>{
+  const newCrop=req.body
+  const result=await CropsCollections.insertOne(newCrop)
+  res.send(result)
+})
+// interest post section
+app.post('/CreateCrops/:cropID',async(req,res)=>{
+  const cropId=req.params.cropID
+  const userEmail=req.body.userEmail
+  const Crop=CropsCollections.findOne({_id:cropId})
+  if(crop.owner.ownerEmail==userEmail){
+    return res.status(403).send({message:"You can't show interest for it"})
+  }
+  const alreadyinterested=Crop.in
+  
+})
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+  } finally {
+  }
+}
+run()
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
