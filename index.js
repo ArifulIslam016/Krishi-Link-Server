@@ -95,9 +95,15 @@ app.patch('/updatePost/:id',async(req,res)=>{
   const cropId=req.params.id
   const updatedCrop=req.body
   // const selectedCrop=await CropsCollections.findOne({_id:new ObjectId(cropId)})
-  const result=CropsCollections.updateOne({_id:new ObjectId(cropId)},updatedCrop)
-  
+  const result=await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$set:updatedCrop})
+  res.send(result)
 
+})
+// Delete a post section
+app.delete('/deletePost/:id',async(req,res)=>{
+  const id=req.params.id
+  const result= await CropsCollections.deleteOne({_id:new ObjectId(id)})
+  res.send(result)
 })
     await client.db("admin").command({ ping: 1 });
     console.log(
