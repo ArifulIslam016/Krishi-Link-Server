@@ -58,14 +58,20 @@ app.get('/allcrops',async(req,res)=>{
   const result=await cursor.toArray()
   res.send(result)
 })
+app.get('/lastest-Crops',async(req,res)=>{
+  const cursor=CropsCollections.find().sort({createdAt:-1})
+  const result=await cursor.toArray()
+  res.send(result)
+})
 // Post sections
 app.post('/CreateCrops',async(req,res)=>{
   const newCrop=req.body
+  newCrop.createdAt=new Date()
   const result=await CropsCollections.insertOne(newCrop)
   res.send(result)
 })
 // interest post section
-app.post('/CreateCrops/:cropID',async(req,res)=>{
+app.post('/CreateInterest/:cropID',async(req,res)=>{
   const cropId=req.params.cropID
   const userEmail=req.body.userEmail
   console.log(userEmail)
@@ -83,6 +89,15 @@ const newInterest=req.body
   newInterest.CropId=cropId
   const result= await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$push:{interests:newInterest}})
   res.send(result)
+})
+// update post section
+app.patch('/updatePost/:id',async(req,res)=>{
+  const cropId=req.params.id
+  const updatedCrop=req.body
+  // const selectedCrop=await CropsCollections.findOne({_id:new ObjectId(cropId)})
+  const result=CropsCollections.updateOne({_id:new ObjectId(cropId)},updatedCrop)
+  
+
 })
     await client.db("admin").command({ ping: 1 });
     console.log(
