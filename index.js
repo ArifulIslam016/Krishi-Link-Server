@@ -47,6 +47,12 @@ app.get('/news',async(req,res)=>{
     const result=await cursor.toArray()
     res.send(result)
 })
+// get a single crop 
+app.get('/single-Crop/:id',async(req,res)=>{
+  const id=req.params.id
+  const result=await CropsCollections.findOne({_id:new ObjectId(id)})
+  res.send(result)
+})
 app.get('/allcrops',async(req,res)=>{
   const ownerEmail=req.query.email
  const  quary={}
@@ -74,23 +80,33 @@ app.post('/CreateCrops',async(req,res)=>{
 app.post('/CreateInterest/:cropID',async(req,res)=>{
   const cropId=req.params.cropID
   const userEmail=req.body.userEmail
-  console.log(userEmail)
+ console.log(cropId)
   const Crop=await CropsCollections.findOne({_id:new ObjectId(cropId)})
-  if(Crop?.owner?.ownerEmail==userEmail){
+  if(Crop?.owner?.ownerEmail===userEmail){
     return res.status(403).send({message:"You can't show interest for it"})
   }
   const alreadyinterested=Crop?.interests?.find(singleInterest=>singleInterest.userEmail===userEmail)
   if(alreadyinterested){
-  return  res.status(400).send({messgae:"You have already showed your opinion"})
+  return  res.status(400).send({message:"You have already showed your opinion"})
   }
   const interestId=new ObjectId()
 const newInterest=req.body
+// console.log(newInterest)
+// const lessQuantity=Number(req.body.quantity )
+// console.log(lessQuantity)          
   newInterest._id=interestId
   newInterest.CropId=cropId
-  const result= await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$push:{interests:newInterest}})
+  const newCropQuantity= Number(Crop.quantity)-lessQuantity
+  const result= await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$push:{interest:newInterest}})
+  
   res.send(result)
 })
+
+// ,$set:{quantity:newCropQuantity}}
+
 // update post section
+// // Delete a interest
+// app.patch('/delInterest/:id',async)
 app.patch('/updatePost/:id',async(req,res)=>{
   const cropId=req.params.id
   const updatedCrop=req.body
