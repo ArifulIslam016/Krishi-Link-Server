@@ -93,7 +93,7 @@ async function run() {
       if (alreadyinterested) {
         return res
           .status(400)
-          .send({ message: "You have already showed your opinion" });
+          .send({ message: "You have already showed interest" });
       }
       const interestId = new ObjectId();
       const newInterest = req.body;
@@ -129,11 +129,9 @@ async function run() {
     // update stutus and quantity
     app.put("/iterest-update", async (req, res) => {
       const afterUpdate = req.body;
-      console.log(afterUpdate);
       const clickedCrop = await CropsCollections.findOne({
         _id: new ObjectId(afterUpdate.CropId),
       });
-      console.log(clickedCrop);
       const Quantity = parseInt(clickedCrop.quantity);
       const minusedQuantity = parseInt(afterUpdate.quantity);
       const remainingQuantity = Quantity - minusedQuantity;
@@ -142,9 +140,33 @@ async function run() {
           _id: new ObjectId(afterUpdate.CropId),
           "interest._id": new ObjectId(afterUpdate._id),
         },
-        { $set: { quantity: remainingQuantity,"interest.$.Status": afterUpdate.Status } }
+        {
+          $set: {
+            quantity: remainingQuantity,
+            "interest.$.Status": afterUpdate.Status,
+          },
+        }
       );
-      res.send(result)
+      res.send(result);
+    });
+    // update status on reject
+    app.put("/reject-Update", async (req, res) => {
+      const afterUpdate = req.body;
+      // const clickedCrop = await CropsCollections.findOne({
+      //   _id: new ObjectId(afterUpdate.CropId),
+      // });
+      const result = await CropsCollections.updateOne(
+        {
+          _id: new ObjectId(afterUpdate.CropId),
+          "interest._id": new ObjectId(afterUpdate.interestId),
+        },
+        {
+          $set: {
+            "interest.$.Status": 'rejected',
+          },
+        }
+      );
+      res.send(result);
     });
     // Delete a post section
     app.delete("/deletePost/:id", async (req, res) => {
