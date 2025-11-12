@@ -14,5 +14,9 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongodb": "^7.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6"
   }
 }

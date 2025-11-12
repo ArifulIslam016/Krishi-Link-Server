@@ -5,7 +5,7 @@ const dotenv = require("dotenv").config();
 // const username=encodeURIComponent(process.env.DB_USER)
 // const password=encodeURIComponent(process.env.DB_PASS)
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-console.log(process.env.DB_USER);
+// console.log(process.env.DB_USER);
 const app = express();
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@aiclusters1.5l6vxb7.mongodb.net/?appName=AIClusters1`;
 
@@ -78,7 +78,7 @@ async function run() {
     app.post("/CreateInterest/:cropID", async (req, res) => {
       const cropId = req.params.cropID;
       const userEmail = req.body.userEmail;
-      console.log(cropId);
+      // console.log(cropId);
       const Crop = await CropsCollections.findOne({
         _id: new ObjectId(cropId),
       });
@@ -129,21 +129,22 @@ async function run() {
     // update stutus and quantity
     app.put("/iterest-update", async (req, res) => {
       const afterUpdate = req.body;
+      console.log(afterUpdate)
       const clickedCrop = await CropsCollections.findOne({
-        _id: new ObjectId(afterUpdate.CropId),
+        _id: new ObjectId(afterUpdate.cropId),
       });
       const Quantity = parseInt(clickedCrop.quantity);
       const minusedQuantity = parseInt(afterUpdate.quantity);
       const remainingQuantity = Quantity - minusedQuantity;
       const result = await CropsCollections.updateOne(
         {
-          _id: new ObjectId(afterUpdate.CropId),
-          "interest._id": new ObjectId(afterUpdate._id),
+          _id: new ObjectId(afterUpdate.cropId),
+          "interest._id": new ObjectId(afterUpdate.interestId),
         },
         {
           $set: {
             quantity: remainingQuantity,
-            "interest.$.Status": afterUpdate.Status,
+            "interest.$.Status": 'Accepted',
           },
         }
       );
@@ -176,14 +177,14 @@ async function run() {
       });
       res.send(result);
     });
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
   }
 }
 run();
 app.listen(port, () => {
-  console.log(`Server is running on ${port}`);
+  // console.log(`Server is running on ${port}`);
 });
