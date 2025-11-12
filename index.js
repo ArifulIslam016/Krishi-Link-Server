@@ -85,7 +85,7 @@ app.post('/CreateInterest/:cropID',async(req,res)=>{
   if(Crop?.owner?.ownerEmail===userEmail){
     return res.status(403).send({message:"You can't show interest for it"})
   }
-  const alreadyinterested=Crop?.interests?.find(singleInterest=>singleInterest.userEmail===userEmail)
+  const alreadyinterested=Crop?.interest?.find(singleInterest=>singleInterest.userEmail===userEmail)
   if(alreadyinterested){
   return  res.status(400).send({message:"You have already showed your opinion"})
   }
@@ -96,7 +96,7 @@ const newInterest=req.body
 // console.log(lessQuantity)          
   newInterest._id=interestId
   newInterest.CropId=cropId
-  const newCropQuantity= Number(Crop.quantity)-lessQuantity
+  // const newCropQuantity= Number(Crop.quantity)-lessQuantity
   const result= await CropsCollections.updateOne({_id:new ObjectId(cropId)},{$push:{interest:newInterest}})
   
   res.send(result)
