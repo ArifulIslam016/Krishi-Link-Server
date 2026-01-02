@@ -53,9 +53,13 @@ async function run() {
     });
     app.get("/allcrops", async (req, res) => {
       const ownerEmail = req.query.email;
+      const type=req.query.type;
       const quary = {};
       if (ownerEmail) {
         quary["owner.ownerEmail"] = ownerEmail;
+      }
+      if(type){
+        quary.type=type
       }
 
       const cursor = CropsCollections.find(quary);
