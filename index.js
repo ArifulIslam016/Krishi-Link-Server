@@ -54,7 +54,13 @@ async function run() {
     app.get("/allcrops", async (req, res) => {
       const ownerEmail = req.query.email;
       const type=req.query.type;
+      const sortby=req.query.sortby;
+      const order=req.query.order;
       const quary = {};
+      const sortQurey={}
+      if(sortby){
+        sortQurey[sortby]=order==="asc"?1:-1
+      }
       if (ownerEmail) {
         quary["owner.ownerEmail"] = ownerEmail;
       }
@@ -62,7 +68,7 @@ async function run() {
         quary.type=type
       }
 
-      const cursor = CropsCollections.find(quary);
+      const cursor = CropsCollections.find(quary).sort(sortQurey);
       const result = await cursor.toArray();
       res.send(result);
     });
